@@ -1,0 +1,123 @@
+---
+title: "Genomes in BSstring packages - Drosophila melanogaster"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+BSgenome is Biostring based package with whole genom of an organism. To check all available BSgenomes use: 
+
+available.genomes()
+
+# Drosophila melanogaster reference genome structure
+
+BSgenome.Dmelanogaster.UCSC.dm6 contains 1870 Biostrings with sequences.
+
+
+```{r, include=FALSE}
+library(BSgenome.Dmelanogaster.UCSC.dm6)
+droso <- BSgenome.Dmelanogaster.UCSC.dm6
+```
+
+```{r, eval=FALSE}
+library(BSgenome.Dmelanogaster.UCSC.dm6)
+droso <- BSgenome.Dmelanogaster.UCSC.dm6
+```
+
+Sequences have different lengh, with median 1576
+```{r}
+head(seqlengths(droso), n=8)
+median(seqlengths(droso))
+```
+
+After visualization is visible that first 7 of them has significant longer seqence.Logarythmic scale makes plot more clear.  
+```{r, echo=FALSE}
+boxplot(seqlengths(droso), log = "y", ylab="log scale", main="Length of sequences")
+```
+ Let's look into first chromosome:
+ 
+```{r}
+droso$chr2R
+
+```
+
+BSgenomes contain only forward strands, not reverse (without any exceptions). 
+
+To check what is the % of AT or GC in chr2L there is a fucntion: 
+
+```{r, echo=FALSE}
+af <- alphabetFrequency(droso$chr2L)
+cat("percentage of AT:  ", as.character((af["A"] + af["T"])/nchar(droso$chr2L)))
+cat("percentage of GC:  ", as.character((af["G"] + af["C"])/nchar(droso$chr2L)))
+
+```
+
+Lets check how many "TTAGG" pattern is in Drosophila genome? This is typical for telomers in some invertebrates. 
+
+```{r}
+dna_seq = DNAString("TTAGG")
+tel <- vmatchPattern(dna_seq, droso)
+length(tel)
+```
+```{r}
+dna_seq = DNAString("TTAGG")
+tel <- vmatchPattern(dna_seq, droso)
+length(tel)
+```
+
+What is the distribution of this pattern depending on the chromosome? According to literature there is no repeated sequence in Drosophila melanogaster telomeres (http://telomerase.asu.edu/sequences_telomere.html) Check on chr2L as an example
+
+```{r, echo=FALSE}
+par(mfrow=c(1,1))
+empty <- seq(1, 8)
+n=1
+for (i in  1:n){
+chr <- seqnames(droso)[1:8][empty[i]]
+hist(start(ranges(tel[seqnames(tel)==chr])),main = chr,breaks=50, xlab = "Hits of TTAGG")
+} 
+```
+
+
+##What is the difference between masekd/unmasked on chr2L as an example?
+
+Lets explore BSgenome.Dmelanogaster.UCSC.dm3.masked.
+
+
+```{r, include=FALSE}
+library(BSgenome.Dmelanogaster.UCSC.dm3.masked)
+droso_masked<- BSgenome.Dmelanogaster.UCSC.dm3.masked
+```
+
+```{r, eval=FALSE}
+library(BSgenome.Dmelanogaster.UCSC.dm3.masked)
+droso_masked <- BSgenome.Dmelanogaster.UCSC.dm3.masked
+```
+
+Intresting thing is that this genome contains only 15 sequnces (in comparison dm.6: 1870)
+```{r}
+seqlengths(droso_masked)
+```
+After visualization is visible that there are 15 long reads. 
+```{r, echo=FALSE}
+
+
+boxplot(seqlengths(droso_masked),seqlengths(droso),
+        names=c("dm3.masked","dm6"),
+        log = "y", ylab="log scale", main="Length of sequences")
+```
+
+To check what is the % of AT or GC in chr2L there is a fucntion: 
+
+```{r, echo=FALSE}
+af <- alphabetFrequency(droso_masked$chr2L)
+cat("percentage of AT:  ", as.character((af["A"] + af["T"])/nchar(droso_masked$chr2L)))
+cat("percentage of GC:  ", as.character((af["G"] + af["C"])/nchar(droso_masked$chr2L)))
+
+```
+
+
+
+

@@ -1,0 +1,109 @@
+---
+title: "Genomes in BSstring packages - Caenorhabditis elegans"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Caenorhabditis elegans reference genome structure
+
+BSgenome.Celegans.UCSC.ce11 contains 7 Biostrings.
+
+
+```{r, include=FALSE}
+library(BSgenome.Celegans.UCSC.ce11)
+eleg <- BSgenome.Celegans.UCSC.ce11
+```
+
+```{r, eval=FALSE}
+library(BSgenome.Celegans.UCSC.ce11)
+eleg <- BSgenome.Celegans.UCSC.ce11
+```
+
+Sequences have different lengh, with median 15279421
+```{r}
+seqlengths(eleg)
+median(seqlengths(eleg))
+```
+
+After visualization is visible that Mitochondrial genome is significantly smaller. 
+```{r, echo=FALSE}
+plot(seqlengths(eleg), log = "y", ylab="log scale", main="Length of sequences"  )
+```
+ Let's look into first chromosome:
+ 
+```{r}
+eleg$chrI
+
+```
+
+To check what is the % of AT or GC in chr2L there is a fucntion: 
+
+```{r, echo=FALSE}
+af <- alphabetFrequency(eleg$chrI)
+cat("percentage of AT:  ", as.character((af["A"] + af["T"])/nchar(eleg$chrI)))
+cat("percentage of GC:  ", as.character((af["G"] + af["C"])/nchar(eleg$chrI)))
+
+```
+
+Lets check how many "TTAGGC" patter is in C.elegans
+How many "TTAGGG" sequences are in the genome in reverse and froward? 
+
+```{r}
+dna_seq = DNAString("TTAGGC")
+tel <- vmatchPattern(dna_seq, eleg)
+length(tel)
+```
+
+What is the distribution of this pattern depending on the chromosome? According to literature repeated sequence in C. elegans is TTAGGC (http://telomerase.asu.edu/sequences_telomere.html)
+
+```{r, echo=FALSE}
+par(mfrow=c(3, 2))
+empty <- seq(1, 6)
+n=6
+for (i in  1:n){
+chr <- seqnames(eleg)[1:6][empty[i]]
+hist(start(ranges(tel[seqnames(tel)==chr])),main = chr,breaks = 50,xlab = "Hits of TTAGGC")
+} 
+```
+
+Mitochondrial DNA does not contain telomer patern at the ends. Why? Does mitochondrial DNA contain ends of chromosome? No, because is circullar.
+
+```{r, echo=FALSE}
+par(mfrow=c(1,1))
+empty <- seq(1, 1)
+n=1
+for (i in  1:n){
+chr <- seqnames(eleg)[7][empty[i]]
+hist(start(ranges(tel[seqnames(tel)==chr])),main = chr,breaks = 50,xlab = "Hits of TTAGGC")
+} 
+```
+
+And how about TTAGGC repeated 10 times in order? 
+
+
+```{r}
+
+dna_seq = DNAString("TTAGGC")
+tel <- vmatchPattern(rep(dna_seq, 10), eleg)
+length(tel)
+```
+
+What is the distribution of this pattern depending on the chromosome? According to literature repeated sequence in C. elegans is TTAGGC
+
+```{r, echo=FALSE}
+par(mfrow=c(3, 2))
+empty <- seq(1, 6)
+n=6
+for (i in  1:n){
+chr <- seqnames(eleg)[1:6][empty[i]]
+hist(start(ranges(tel[seqnames(tel)==chr])),main = chr,breaks = 50,xlab = "Hits of TTAGGC")
+} 
+```
+
+
+
